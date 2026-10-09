@@ -1,8 +1,13 @@
 def aantal_dagen(inputFile):
-    # Lees alle regels uit het bestand
-    bestand = open(inputFile, "r")
-    regels = bestand.readlines()
-    bestand.close()
+    try:
+        bestand = open(inputFile, "r")
+        regels = bestand.readlines()
+        bestand.close()
+    except FileNotFoundError:
+        print("Bestand niet gevonden.")
+        return -1
+
+    # de rest van je code
 
     # De eerste regel (namen van de kolommen) telt niet mee
     aantal = 0
@@ -15,9 +20,13 @@ def aantal_dagen(inputFile):
 
 def auto_bereken(inputFile, outputFile):
     # Lees alle regels uit het inputbestand
-    bestand = open(inputFile, "r")
-    regels = bestand.readlines()
-    bestand.close()
+    try:
+        bestand = open(inputFile, "r")
+        regels = bestand.readlines()
+        bestand.close()
+    except FileNotFoundError:
+        print("Bestand niet gevonden.")
+        return
 
     # Open het outputbestand om in te schrijven
     uitvoer = open(outputFile, "w")
@@ -29,10 +38,14 @@ def auto_bereken(inputFile, outputFile):
         if regel != "":
             delen = regel.split()
             datum = delen[0]
-            mensen = int(delen[1])
-            setpoint = float(delen[2])
-            buiten = float(delen[3])
-            neerslag = float(delen[4])
+            try:
+                mensen = int(delen[1])
+                setpoint = float(delen[2])
+                buiten = float(delen[3])
+                neerslag = float(delen[4])
+            except ValueError:
+                print("Ongeldige gegevens in input.txt.")
+                continue
 
             # CV ketel
             verschil = setpoint - buiten
@@ -60,18 +73,27 @@ def auto_bereken(inputFile, outputFile):
 
 
 def overwrite_settings(outputFile):
-    # Vraag de gegevens aan de gebruiker
     datum = input("Datum (dd-mm-jjjj): ")
     systeem = input("Systeem (1=CV, 2=ventilatie, 3=bewatering): ")
     waarde = input("Nieuwe waarde: ")
 
-    # Lees het outputbestand
-    bestand = open(outputFile, "r")
-    regels = bestand.readlines()
-    bestand.close()
+    try:
+        systeem = int(systeem)
+        waarde = int(waarde)
+    except ValueError:
+        print("Voer een getal in.")
+        return -3
 
-    # Zoek de regel met de datum
+    try:
+        bestand = open(outputFile, "r")
+        regels = bestand.readlines()
+        bestand.close()
+    except FileNotFoundError:
+        print("Bestand niet gevonden.")
+        return -2
+
     plek = -1
+
     for i in range(len(regels)):
         delen = regels[i].strip().split(";")
         if delen[0] == datum:
@@ -79,13 +101,6 @@ def overwrite_settings(outputFile):
 
     if plek == -1:
         return -1
-
-    # Zijn systeem en waarde hele getallen?
-    try:
-        systeem = int(systeem)
-        waarde = int(waarde)
-    except ValueError:
-        return -3
 
     # Controleer of de waarde mag bij dit systeem
     if systeem == 1:
@@ -122,8 +137,8 @@ def overwrite_settings(outputFile):
 
 
 def smart_app_controller():
-    inputFile = "input.txt"
-    outputFile = "output.txt"
+    inputFile = "sprint2/input.txt"
+    outputFile = "sprint2/output.txt"
 
     keuze = ""
     while keuze != "4":
